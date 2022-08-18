@@ -1,0 +1,132 @@
+version: "3.1"
+
+networks:
+  ZabbixNet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${ZabbixSubnet}.0/24
+
+services:
+  ZabbixPostgres:
+    container_name: ZabbixPostgres
+    image: postgres:13.6
+    networks:
+      ZabbixNet:
+        ipv4_address: ${ZabbixSubnet}.20
+    ports:
+      - "5432:5432"
+    volumes:
+      - PostgresData:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+
+  ZabbixServer:
+    container_name: ZabbixServer
+    image: zabbix/zabbix-server-pgsql:alpine-latest
+    networks:
+      ZabbixNet:
+        ipv4_address: ${ZabbixSubnet}.10
+    links:
+      - ZabbixPostgres
+    restart: always
+    ports:
+      - "10051:10051"
+    volumes:
+      - ZabbixAlertScripts:/usr/lib/zabbix/alertscripts
+      - ZabbixExternalScripts:/usr/lib/zabbix/externalscripts
+      - ZabbixConfig:/etc/zabbix
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+    depends_on:
+      - ZabbixPostgres
+
+  ZabbixFrontend:
+    container_name: ZabbixFrontend
+    image: zabbix/zabbix-web-apache-pgsql:alpine-latest
+    networks:
+      ZabbixNet:
+        ipv4_address: ${ZabbixSubnet}.11
+    links:
+      - ZabbixPostgres
+      - ZabbixServer
+    restart: always
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+      ZBX_SERVER_HOST: ${ZabbixSubnet}.200
+      PHP_TZ: Europe/Berlin
+    depends_on:
+      - ZabbixPostgres
+      - ZabbixServer
+
+  ZabbixSNMPTraps:
+    container_name: ZabbixSNMPTraps
+    image: zabbix/zabbix-snmptraps:alpine-latest
+    networks:
+      ZabbixNet:
+        ipv4_address: ${ZabbixSubnet}.12
+    links:
+      - ZabbixPostgres
+    restart: always
+    ports:
+      - "162:1162/udp"
+    volumes:
+      - ZabbixSNMPTraps:/var/lib/zabbix/snmptraps
+      - ZabbixSNMPMIBs:/var/lib/zabbix/mibs
+    depends_on:
+      - ZabbixServer
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.4.3
+    networks:
+      ZabbixNet:
+        ipv4_address: ${ZabbixSubnet}.13
+    links:
+      - ZabbixPostgres
+      - ZabbixServer
+      - ZabbixFrontend
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - GrafanaData:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+    depends_on:
+      - ZabbixPostgres
+      - ZabbixServer
+
+
+volumes:
+  PostgresData:
+    driver: local
+    name: PostgresData
+  ZabbixConfig:
+    driver: local
+    name: ZabbixConfig
+  ZabbixAlertScripts:
+    driver: local
+    name: ZabbixAlertScripts
+  ZabbixExternalScripts:
+    driver: local
+    name: ZabbixExternalScripts
+  ZabbixSNMPTraps:
+    driver: local
+    name: ZabbixSNMPTraps
+  ZabbixSNMPMIBs:
+    driver: local
+    name: ZabbixSNMPMIBs
+  GrafanaData:
+    driver: local
+    name: GrafanaData
