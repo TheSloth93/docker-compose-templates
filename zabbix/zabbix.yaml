@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3"
 
 networks:
   ZabbixNet:
@@ -6,7 +6,7 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: ${ZabbixSubnet}.0/24
+      - subnet: 172.16.2.0/24
 
 services:
   ZabbixPostgres:
@@ -14,7 +14,7 @@ services:
     image: postgres:13.6
     networks:
       ZabbixNet:
-        ipv4_address: ${ZabbixSubnet}.20
+        ipv4_address: 172.16.2.20
     ports:
       - "5432:5432"
     volumes:
@@ -29,7 +29,7 @@ services:
     image: zabbix/zabbix-server-pgsql:alpine-latest
     networks:
       ZabbixNet:
-        ipv4_address: ${ZabbixSubnet}.10
+        ipv4_address: 172.16.2.10
     links:
       - ZabbixPostgres
     restart: always
@@ -51,7 +51,7 @@ services:
     image: zabbix/zabbix-web-apache-pgsql:alpine-latest
     networks:
       ZabbixNet:
-        ipv4_address: ${ZabbixSubnet}.11
+        ipv4_address: 172.16.2.11
     links:
       - ZabbixPostgres
       - ZabbixServer
@@ -63,7 +63,7 @@ services:
       POSTGRES_USER: zabbix
       POSTGRES_PASSWORD: zabbix
       POSTGRES_DB: zabbix
-      ZBX_SERVER_HOST: ${ZabbixSubnet}.200
+      ZBX_SERVER_HOST: 172.16.2.200
       PHP_TZ: Europe/Berlin
     depends_on:
       - ZabbixPostgres
@@ -74,7 +74,7 @@ services:
     image: zabbix/zabbix-snmptraps:alpine-latest
     networks:
       ZabbixNet:
-        ipv4_address: ${ZabbixSubnet}.12
+        ipv4_address: 172.16.2.12
     links:
       - ZabbixPostgres
     restart: always
@@ -91,7 +91,7 @@ services:
     image: grafana/grafana:8.4.3
     networks:
       ZabbixNet:
-        ipv4_address: ${ZabbixSubnet}.13
+        ipv4_address: 172.16.2.13
     links:
       - ZabbixPostgres
       - ZabbixServer
