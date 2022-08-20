@@ -5,10 +5,10 @@ echo "                                             "
 echo "        Project:    Zabbix Server            "
 echo "                                             "
 echo "                                             "
-echo "    please select your action:               "
+echo "    please select your action: "
 echo "                                             "
 
-select action in up down start stop
+select ACTION in "up" "down" "start" "stop"
 do
   echo "                                             "
   echo "    downloading scripts...                   "
@@ -30,6 +30,8 @@ do
   rm ./zabbix.env
 
   echo "    finished.                                "
+  
+  break
 done
 
 echo "                                             "
