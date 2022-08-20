@@ -17,6 +17,9 @@ do
   wget -q https://raw.githubusercontent.com/TheSloth93/docker-compose-templates/main/zabbix/zabbix.yaml
 
   echo "    finished.                                "
+  
+  sleep 10s
+  
   echo "                                             "
   echo "    executing docker-compose...              "
 
