@@ -6,7 +6,7 @@ echo "        Project:    Zabbix Server            "
 echo "                                             "
 echo "                                             "
 
-PS3=echo "    please select your action: "
+PS3="    please select your action: "
 
 echo "                                             "
 
