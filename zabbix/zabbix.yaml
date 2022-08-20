@@ -30,8 +30,6 @@ services:
     networks:
       ZabbixNet:
         ipv4_address: 172.16.2.10
-    links:
-      - ZabbixPostgres
     restart: always
     ports:
       - "10051:10051"
@@ -40,6 +38,7 @@ services:
       - ZabbixExternalScripts:/usr/lib/zabbix/externalscripts
       - ZabbixConfig:/etc/zabbix
     environment:
+      DB_SERVER_HOST: 172.16.2.20
       POSTGRES_USER: zabbix
       POSTGRES_PASSWORD: zabbix
       POSTGRES_DB: zabbix
@@ -52,18 +51,16 @@ services:
     networks:
       ZabbixNet:
         ipv4_address: 172.16.2.11
-    links:
-      - ZabbixPostgres
-      - ZabbixServer
     restart: always
     ports:
       - "80:8080"
       - "443:8443"
     environment:
+      DB_SERVER_HOST: 172.16.2.20
       POSTGRES_USER: zabbix
       POSTGRES_PASSWORD: zabbix
       POSTGRES_DB: zabbix
-      ZBX_SERVER_HOST: 172.16.2.200
+      ZBX_SERVER_HOST: 172.16.2.10
       PHP_TZ: Europe/Berlin
     depends_on:
       - ZabbixPostgres
@@ -75,8 +72,6 @@ services:
     networks:
       ZabbixNet:
         ipv4_address: 172.16.2.12
-    links:
-      - ZabbixPostgres
     restart: always
     ports:
       - "162:1162/udp"
@@ -86,23 +81,17 @@ services:
     depends_on:
       - ZabbixServer
 
-  grafana:
-    container_name: grafana
+  Grafana:
+    container_name: Grafana
     image: grafana/grafana:8.4.3
     networks:
       ZabbixNet:
         ipv4_address: 172.16.2.13
-    links:
-      - ZabbixPostgres
-      - ZabbixServer
-      - ZabbixFrontend
     restart: always
     ports:
       - "3000:3000"
     volumes:
       - GrafanaData:/var/lib/grafana
-    environment:
-      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
     depends_on:
       - ZabbixPostgres
       - ZabbixServer
