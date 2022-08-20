@@ -5,7 +5,9 @@ echo "                                             "
 echo "        Project:    Zabbix Server            "
 echo "                                             "
 echo "                                             "
-echo "    please select your action: "
+
+PS3=echo "    please select your action: "
+
 echo "                                             "
 
 select ACTION in "up" "down" "start" "stop"
