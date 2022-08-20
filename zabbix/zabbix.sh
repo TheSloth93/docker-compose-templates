@@ -20,7 +20,7 @@ do
   echo "                                             "
   echo "    executing docker-compose...              "
 
-  docker-compose -f zabbix.yaml --env-file zabbix.env -p zabbix $action -d 1> /dev/null
+  docker-compose -f zabbix.yaml --env-file zabbix.env -p zabbix $action -d > /dev/null
 
   echo "    finished.                                "
   echo "                                             "
