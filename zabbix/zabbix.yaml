@@ -35,9 +35,11 @@ services:
     ports:
       - "10051:10051"
     volumes:
+      - ZabbixConfig:/etc/zabbix
       - ZabbixAlertScripts:/usr/lib/zabbix/alertscripts
       - ZabbixExternalScripts:/usr/lib/zabbix/externalscripts
-      - ZabbixConfig:/etc/zabbix
+      - ZabbixExport:/var/lib/zabbix/export
+      - ZabbixSNMPTraps:/var/lib/zabbix/snmptraps
     environment:
       DB_SERVER_HOST: 172.16.2.20
       POSTGRES_USER: zabbix
