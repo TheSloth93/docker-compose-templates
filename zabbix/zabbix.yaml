@@ -109,6 +109,9 @@ volumes:
   ZabbixConfig:
     driver: local
     name: ZabbixConfig
+  ZabbixExport:
+    driver: local
+    name: ZabbixExport
   ZabbixAlertScripts:
     driver: local
     name: ZabbixAlertScripts
